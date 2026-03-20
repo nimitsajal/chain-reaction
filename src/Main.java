@@ -5,14 +5,6 @@ public class Main {
         printGrid(defaultGrid, size);
     }
 
-    public static void addSeparation() {
-        System.out.println("                                ");
-        System.out.println("                                ");
-        System.out.println("                                ");
-        System.out.println("                                ");
-        System.out.println("                                ");
-    }
-
     public static int[][] getDefaultGrid(int size) {
 
         int[][] grid = new int[size + 1][size];
@@ -28,32 +20,44 @@ public class Main {
     }
 
     public static void printGrid(int[][] grid, int size) {
-        for (int i = 0; i < size + 1; i++) {
-            if (i > 0) { // actual grid
-                System.out.print(printNum(i) + " │ ");
-                for (int j = 0; j < size; j++) {
-                    System.out.printf(printNum(grid[i][j]) + " ");
-                }
-                System.out.println(" │ ");
-            } else { // top row for the column numbers
-                System.out.print("     ");
-                for (int k = 1; k < size + 1; k++) {
-                    System.out.printf(printNum(k) + " ");
-                }
-                System.out.println();
-                System.out.print("   ┌─");
-                for (int k = 1; k < size + 1; k++) {
-                    System.out.print("───");
-                }
-                System.out.print("─┐");
-                System.out.println();
+        printTopRowWithBorder(size);
+        printMainGrid(grid, size);
+        printBottomBorder(size);
+    }
+
+    private static void printMainGrid(int[][] grid, int size) {
+        for (int i = 0; i < size; i++) {
+            System.out.print(printNum(i+1) + " │ ");
+            for (int j = 0; j < size; j++) {
+                System.out.printf(printNum(grid[i][j]) + " ");
+
+                // NOTE: to check the position of each element
+//                System.out.printf(i + String.valueOf(j) + " ");
             }
+            System.out.println(" │ ");
         }
+    }
+
+    private static void printBottomBorder(int size) {
         System.out.print("   └─");
         for (int k = 1; k < size + 1; k++) {
             System.out.print("───");
         }
         System.out.print("─┘");
+    }
+
+    private static void printTopRowWithBorder(int size) {
+        System.out.print("     ");
+        for (int k = 1; k < size + 1; k++) {
+            System.out.printf(printNum(k) + " ");
+        }
+        System.out.println();
+        System.out.print("   ┌─");
+        for (int k = 1; k < size + 1; k++) {
+            System.out.print("───");
+        }
+        System.out.print("─┐");
+        System.out.println();
     }
 
     public static String printNum(int num) {
