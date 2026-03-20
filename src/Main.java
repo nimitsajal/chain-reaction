@@ -9,7 +9,7 @@ public class Main {
 
         int[][] grid = new int[size + 1][size];
 
-        for (int i = 0; i < size + 1; i++) {
+        for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
                 grid[i][j] = 0;
             }
@@ -25,31 +25,10 @@ public class Main {
         printBottomBorder(size);
     }
 
-    private static void printMainGrid(int[][] grid, int size) {
-        for (int i = 0; i < size; i++) {
-            System.out.print(printNum(i+1) + " │ ");
-            for (int j = 0; j < size; j++) {
-                System.out.printf(printNum(grid[i][j]) + " ");
-
-                // NOTE: to check the position of each element
-//                System.out.printf(i + String.valueOf(j) + " ");
-            }
-            System.out.println(" │ ");
-        }
-    }
-
-    private static void printBottomBorder(int size) {
-        System.out.print("   └─");
-        for (int k = 1; k < size + 1; k++) {
-            System.out.print("───");
-        }
-        System.out.print("─┘");
-    }
-
     private static void printTopRowWithBorder(int size) {
         System.out.print("     ");
         for (int k = 1; k < size + 1; k++) {
-            System.out.printf(printNum(k) + " ");
+            System.out.print(printNum(k) + " ");
         }
         System.out.println();
         System.out.print("   ┌─");
@@ -57,6 +36,29 @@ public class Main {
             System.out.print("───");
         }
         System.out.print("─┐");
+        System.out.println();
+    }
+
+    private static void printMainGrid(int[][] grid, int size) {
+        for (int i = 0; i < size; i++) {
+            System.out.print(printNum(i+1) + " │ ");
+            for (int j = 0; j < size; j++) {
+                System.out.print(printNum(grid[i][j]) + " ");
+
+                // NOTE: to check the position of each element
+//                System.out.print(i + String.valueOf(j) + " ");
+            }
+            System.out.println(" │ ");
+        }
+    }
+
+
+    private static void printBottomBorder(int size) {
+        System.out.print("   └─");
+        for (int k = 1; k < size + 1; k++) {
+            System.out.print("───");
+        }
+        System.out.print("─┘");
         System.out.println();
     }
 
