@@ -1,11 +1,12 @@
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
 
         Scanner sc = new Scanner(System.in);
-        System.out.println("Enter the size of the Grid: ");
-        int size = sc.nextInt();
+
+        int size = getGridSizeFromUser(sc);
 //        int size = 10;
 
         int[][] defaultGrid = getDefaultGrid(size);
@@ -28,6 +29,29 @@ public class Main {
             }
             printGrid(grid, size);
         }
+    }
+
+    private static int getGridSizeFromUser(Scanner sc) {
+        boolean isValidInput = false;
+        int size = 0;
+
+        while (!isValidInput) {
+            try {
+                System.out.println("Enter the size of the Grid [Allowed Range: 4 - 15]: ");
+                size = sc.nextInt();
+                if (size >= 4 && size <= 15) {
+                    System.out.println("Size of the grid selected: " + size);
+                    isValidInput = true;
+                } else {
+                    System.err.println("Wrong input! Please enter numbers only in the allowed range!");
+                }
+            } catch (InputMismatchException e) {
+                System.err.println("Wrong input! Please enter only integer numbers!");
+                sc.nextLine();
+            }
+        }
+
+        return size;
     }
 
     public static int[][] getDefaultGrid(int size) {
