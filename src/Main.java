@@ -5,17 +5,19 @@ public class Main {
     public static void main(String[] args) {
 
         Scanner sc = new Scanner(System.in);
-
-        int size = getGridSizeFromUser(sc);
 //        int size = 10;
+        int size = getGridSizeFromUser(sc);
 
         int[][] defaultGrid = getDefaultGrid(size);
         printGrid(defaultGrid, size);
 
         while(true) {
-            System.out.println("Enter Row and Column: ");
-            int r = sc.nextInt() - 1;
-            int c = sc.nextInt() - 1;
+
+            Move move = getMoveFromuser(sc, size);
+            int r = move.getRowPos() - 1;
+            int c  = move.getCollPos() - 1;
+
+            System.out.println("Selected Row and Column: " + move.getRowPos() + ", " + move.getCollPos());
 
             int[][] grid = defaultGrid;
 
@@ -29,6 +31,34 @@ public class Main {
             }
             printGrid(grid, size);
         }
+    }
+
+    public static Move getMoveFromuser(Scanner sc, int size) {
+        Move move = new Move();
+        int r = 0;
+        int c = 0;
+
+        boolean isValidInput = false;
+
+        while (!isValidInput) {
+            try {
+                System.out.println("Enter the move - row and column positions: ");
+                r = sc.nextInt();
+                c = sc.nextInt();
+                if (r > 0 && c > 0 && r <= size && c <= size) {
+                    isValidInput = true;
+                } else {
+                    System.err.println("Wrong input! Please enter numbers within the grid!");
+                }
+            } catch (InputMismatchException e) {
+                System.err.println("Wrong input! Please enter only integer numbers!");
+                sc.nextLine();
+            }
+        }
+
+        move.setRowPos(r);
+        move.setCollPos(c);
+        return move;
     }
 
     private static int getGridSizeFromUser(Scanner sc) {
