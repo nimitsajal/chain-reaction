@@ -8,32 +8,70 @@ public class Main {
 //        int size = 10;
         int size = getGridSizeFromUser(sc);
 
-        int[][] defaultGrid = getDefaultGrid(size);
-        printGrid(defaultGrid, size);
+        int[][] grid = getDefaultGrid(size);
+        printGrid(grid, size);
 
         while(true) {
 
-            Move move = getMoveFromuser(sc, size);
-            int r = move.getRowPos() - 1;
-            int c  = move.getCollPos() - 1;
+            Move move = getMoveFromUser(sc, size);
 
-            System.out.println("Selected Row and Column: " + move.getRowPos() + ", " + move.getCollPos());
-
-            int[][] grid = defaultGrid;
-
-            grid[r][c] += 1;
-            if (grid[r][c] == 3) {
-                grid[r][c] = 0;
-                grid[r-1][c] += 1;
-                grid[r][c-1] += 1;
-                grid[r+1][c] += 1;
-                grid[r][c+1] += 1;
-            }
-            printGrid(grid, size);
+            incrementValue(grid, move.getRowPos(), move.getColPos(), size);
+//            printGrid(grid, size);
         }
     }
 
-    public static Move getMoveFromuser(Scanner sc, int size) {
+    private static void incrementValue(int[][] grid, int rowPos, int colPos, int size) {
+        grid[rowPos][colPos] += 1;
+        printGrid(grid, size);
+        CellType cellType = getCellType(rowPos, colPos, size);
+        if (grid[rowPos][colPos] >= cellType.getCapacity()) {
+            grid[rowPos][colPos] = 0;
+
+            if (isBottomExists(rowPos, size)) {
+                incrementValue(grid, rowPos+1, colPos, size);
+            }
+            if (isTopExists(rowPos)) {
+                incrementValue(grid, rowPos-1, colPos, size);
+            }
+            if (isLeftExists(colPos)) {
+                incrementValue(grid, rowPos, colPos-1, size);
+            }
+            if (isRightExists(colPos, size)) {
+                incrementValue(grid, rowPos, colPos+1, size);
+            }
+        }
+    }
+
+    public static boolean isRightExists(int colPos, int size) {
+        return colPos < size - 1;
+    }
+
+    public static boolean isLeftExists(int colPos) {
+        return colPos > 0;
+    }
+
+    public static boolean isBottomExists(int rowPos, int size) {
+        return rowPos < size - 1;
+    }
+
+    public static boolean isTopExists(int rowPos) {
+        return rowPos > 0;
+    }
+
+    public static CellType getCellType(int rowPos, int colPos, int size) {
+        if (rowPos > 0 && rowPos < size-1 && colPos > 0 && colPos < size-1) {
+            return CellType.MIDDLE;
+        }
+        if ((rowPos == 0 && colPos == 0) ||
+                (rowPos == size-1 && colPos == size-1) ||
+                (rowPos == 0 && colPos == size-1) ||
+                (rowPos == size-1 && colPos == 0)) {
+            return CellType.CORNER;
+        }
+        return CellType.EDGE;
+    }
+
+    public static Move getMoveFromUser(Scanner sc, int size) {
         Move move = new Move();
         int r = 0;
         int c = 0;
@@ -56,8 +94,8 @@ public class Main {
             }
         }
 
-        move.setRowPos(r);
-        move.setCollPos(c);
+        move.setRowPos(r-1);
+        move.setColPos(c-1);
         return move;
     }
 
