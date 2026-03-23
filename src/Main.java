@@ -11,7 +11,7 @@ public class Main {
         int size = getGridSizeFromUser(sc);
         int playerCount = getPlayerCountFromUser(sc);
 
-        List<Player> playerList =  createPlayersAndAssignColors(playerCount);
+        List<Player> playerList =  createPlayersAndAssignColors(playerCount, sc);
 
         Cell[][] grid = getDefaultGrid(size);
         printGrid(grid, size);
@@ -34,13 +34,13 @@ public class Main {
         }
     }
 
-    private static List<Player> createPlayersAndAssignColors(int playerCount) {
+    private static List<Player> createPlayersAndAssignColors(int playerCount, Scanner sc) {
         List<Player> playerList = new ArrayList<>();
 
         for(int i=0; i < playerCount; i++) {
             Player player = new Player();
             player.setId(i);
-            TextColor textColor = getColorFromPlayer(player.getId());
+            TextColor textColor = getColorFromPlayer(player.getId(), sc);
             player.setTextColor(textColor);
             playerList.add(player);
         }
@@ -105,15 +105,14 @@ public class Main {
         return CellType.EDGE;
     }
 
-    private static TextColor getColorFromPlayer(int i) {
-        Scanner sc = new Scanner(System.in);
+    private static TextColor getColorFromPlayer(int i, Scanner sc) {
         boolean isValidInput = false;
         int colorNumber;
         TextColor textColor = null;
 
         while (!isValidInput) {
             try {
-                System.out.println("Select the Color for the Player: " + i + "[Enter the Number attached to the color]");
+                System.out.println("Select the Color for the Player: " + (i + 1) + "[Enter the Number attached to the color]");
                 System.out.println("Allowed Colors: [1] RED, [2] BLUE, [3] GREEN, [4] YELLOW, [5] CYAN, [6] MAGENTA");
                 colorNumber = sc.nextInt();
                 if (colorNumber >= 1 && colorNumber <= 6) {
@@ -153,7 +152,7 @@ public class Main {
 
         while (!isValidInput) {
             try {
-                System.out.println("Enter the move for Player: " + currentPlayer.getId() + 1 + " - row and column positions: ");
+                System.out.println("Enter the move for Player: " + (currentPlayer.getId() + 1) + " - row and column positions: ");
                 r = sc.nextInt();
                 c = sc.nextInt();
                 if (r > 0 && c > 0 && r <= size && c <= size) {
