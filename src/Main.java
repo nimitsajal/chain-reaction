@@ -24,7 +24,7 @@ public class Main {
 
             Player currentPlayer = playerList.get(currentPlayerIndex);
 
-            Move move = getMoveFromUser(sc, size);
+            Move move = getMoveFromUser(sc, size, currentPlayer, grid);
 
             incrementValue(grid, move.getRowPos(), move.getColPos(), size, currentPlayer);
 //            printGrid(grid, size);
@@ -50,26 +50,30 @@ public class Main {
     }
 
     private static void incrementValue(Cell[][] grid, int rowPos, int colPos, int size, Player currentPlayer) {
-        grid[rowPos][colPos].setValue(grid[rowPos][colPos].getValue() + 1);
-        grid[rowPos][colPos].setPlayer(currentPlayer);
-        printGrid(grid, size);
-        CellType cellType = getCellType(rowPos, colPos, size);
-        if (grid[rowPos][colPos].getValue() >= cellType.getCapacity()) {
-            grid[rowPos][colPos].setValue(0);
+            Cell currentCell = grid[rowPos][colPos];
 
-            if (isBottomExists(rowPos, size)) {
-                incrementValue(grid, rowPos+1, colPos, size, currentPlayer);
+            currentCell.setValue(grid[rowPos][colPos].getValue() + 1);
+            currentCell.setPlayer(currentPlayer);
+            printGrid(grid, size);
+            CellType cellType = getCellType(rowPos, colPos, size);
+            if (currentCell.getValue() >= cellType.getCapacity()) {
+                currentCell.setValue(0);
+                currentCell.setPlayer(null);
+
+                if (isBottomExists(rowPos, size)) {
+                    incrementValue(grid, rowPos+1, colPos, size, currentPlayer);
+                }
+                if (isTopExists(rowPos)) {
+                    incrementValue(grid, rowPos-1, colPos, size, currentPlayer);
+                }
+                if (isLeftExists(colPos)) {
+                    incrementValue(grid, rowPos, colPos-1, size, currentPlayer);
+                }
+                if (isRightExists(colPos, size)) {
+                    incrementValue(grid, rowPos, colPos+1, size, currentPlayer);
+                }
             }
-            if (isTopExists(rowPos)) {
-                incrementValue(grid, rowPos-1, colPos, size, currentPlayer);
-            }
-            if (isLeftExists(colPos)) {
-                incrementValue(grid, rowPos, colPos-1, size, currentPlayer);
-            }
-            if (isRightExists(colPos, size)) {
-                incrementValue(grid, rowPos, colPos+1, size, currentPlayer);
-            }
-        }
+
     }
 
     private static boolean isRightExists(int colPos, int size) {
@@ -129,25 +133,18 @@ public class Main {
     }
 
     private static TextColor getTextColorEnumFromSelectedNumber(int colorNumber) {
-        switch (colorNumber) {
-            case 1:
-                return TextColor.RED;
-            case 2:
-                return TextColor.BLUE;
-            case 3:
-                return TextColor.GREEN;
-            case 4:
-                return TextColor.YELLOW;
-            case 5:
-                return TextColor.CYAN;
-            case 6:
-                return TextColor.MAGENTA;
-            default:
-                return TextColor.WHITE;
-        }
+        return switch (colorNumber) {
+            case 1 -> TextColor.RED;
+            case 2 -> TextColor.BLUE;
+            case 3 -> TextColor.GREEN;
+            case 4 -> TextColor.YELLOW;
+            case 5 -> TextColor.CYAN;
+            case 6 -> TextColor.MAGENTA;
+            default -> TextColor.WHITE;
+        };
     }
 
-    private static Move getMoveFromUser(Scanner sc, int size) {
+    private static Move getMoveFromUser(Scanner sc, int size, Player currentPlayer, Cell[][] grid) {
         Move move = new Move();
         int r = 0;
         int c = 0;
@@ -156,11 +153,15 @@ public class Main {
 
         while (!isValidInput) {
             try {
-                System.out.println("Enter the move - row and column positions: ");
+                System.out.println("Enter the move for Player: " + currentPlayer.getId() + 1 + " - row and column positions: ");
                 r = sc.nextInt();
                 c = sc.nextInt();
                 if (r > 0 && c > 0 && r <= size && c <= size) {
-                    isValidInput = true;
+                    if (currentPlayer.equals(grid[r-1][c-1].getPlayer()) || grid[r-1][c-1].getPlayer() == null) {
+                        isValidInput = true;
+                    } else {
+                        System.err.println("Wrong input! Please enter position occupied by you or which is empty!");
+                    }
                 } else {
                     System.err.println("Wrong input! Please enter numbers within the grid!");
                 }
@@ -260,7 +261,7 @@ public class Main {
         for (int i = 0; i < size; i++) {
             System.out.print(printNum(i+1) + " │ ");
             for (int j = 0; j < size; j++) {
-                int cellValue = grid[i][i].getValue();
+                int cellValue = grid[i][j].getValue();
                 Player currentPlayer = grid[i][j].getPlayer();
                 TextColor textColor;
                 if (currentPlayer == null) {
