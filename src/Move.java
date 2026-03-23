@@ -6,7 +6,7 @@ public class Move {
         return rowPos;
     }
 
-    public int getcolPos() {
+    public int getColPos() {
         return colPos;
     }
 
@@ -17,7 +17,7 @@ public class Move {
         this.rowPos = rowPos;
     }
 
-    public void setcolPos(int colPos) {
+    public void setColPos(int colPos) {
         if (colPos < 0) {
             throw new IllegalArgumentException("colPos must be >= 0");
         }

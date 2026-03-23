@@ -15,13 +15,14 @@ public class Main {
 
             Move move = getMoveFromUser(sc, size);
 
-            incrementValue(grid, move.getRowPos(), move.getcolPos(), size);
-            printGrid(grid, size);
+            incrementValue(grid, move.getRowPos(), move.getColPos(), size);
+//            printGrid(grid, size);
         }
     }
 
     private static void incrementValue(int[][] grid, int rowPos, int colPos, int size) {
         grid[rowPos][colPos] += 1;
+        printGrid(grid, size);
         CellType cellType = getCellType(rowPos, colPos, size);
         if (grid[rowPos][colPos] >= cellType.getCapacity()) {
             grid[rowPos][colPos] = 0;
@@ -94,7 +95,7 @@ public class Main {
         }
 
         move.setRowPos(r-1);
-        move.setcolPos(c-1);
+        move.setColPos(c-1);
         return move;
     }
 
