@@ -1,4 +1,6 @@
+import java.util.ArrayList;
 import java.util.InputMismatchException;
+import java.util.List;
 import java.util.Scanner;
 
 public class Main {
@@ -7,58 +9,106 @@ public class Main {
         Scanner sc = new Scanner(System.in);
 //        int size = 10;
         int size = getGridSizeFromUser(sc);
+        int playerCount = getPlayerCountFromUser(sc);
 
-        int[][] grid = getDefaultGrid(size);
+        List<Player> playerList =  createPlayersAndAssignColors(playerCount, sc);
+
+        Cell[][] grid = getDefaultGrid(size);
+        clearScreen();
         printGrid(grid, size);
+        sleep();
 
-        while(true) {
+        int currentPlayerIndex = 0;
+        int totalPlayers = playerList.size();
+        boolean isGameOver = false;
 
-            Move move = getMoveFromUser(sc, size);
+        while(!isGameOver) {
 
-            incrementValue(grid, move.getRowPos(), move.getColPos(), size);
+            Player currentPlayer = playerList.get(currentPlayerIndex);
+
+            Move move = getMoveFromUser(sc, size, currentPlayer, grid);
+
+            incrementValue(grid, move.getRowPos(), move.getColPos(), size, currentPlayer);
 //            printGrid(grid, size);
+
+            currentPlayerIndex = (currentPlayerIndex + 1) % totalPlayers;
+
         }
     }
 
-    private static void incrementValue(int[][] grid, int rowPos, int colPos, int size) {
-        grid[rowPos][colPos] += 1;
+    private static List<Player> createPlayersAndAssignColors(int playerCount, Scanner sc) {
+        List<Player> playerList = new ArrayList<>();
+        List<TextColor> availableColorsList = getAvailableColorsList();
+
+        for(int i=0; i < playerCount; i++) {
+            Player player = new Player();
+            player.setId(i);
+            TextColor textColor = getColorFromPlayer(player.getId(), sc, availableColorsList);
+            player.setTextColor(textColor);
+            playerList.add(player);
+        }
+
+        return playerList;
+
+    }
+
+    private static List<TextColor> getAvailableColorsList() {
+        return new ArrayList<>(List.of(
+                TextColor.RED,
+                TextColor.BLUE,
+                TextColor.GREEN,
+                TextColor.YELLOW,
+                TextColor.CYAN,
+                TextColor.MAGENTA
+        ));
+    }
+
+    private static void incrementValue(Cell[][] grid, int rowPos, int colPos, int size, Player currentPlayer) {
+        Cell currentCell = grid[rowPos][colPos];
+
+        currentCell.setValue(currentCell.getValue() + 1);
+        currentCell.setPlayer(currentPlayer);
+        clearScreen();
         printGrid(grid, size);
+        sleep();
         CellType cellType = getCellType(rowPos, colPos, size);
-        if (grid[rowPos][colPos] >= cellType.getCapacity()) {
-            grid[rowPos][colPos] = 0;
+        if (currentCell.getValue() >= cellType.getCapacity()) {
+            currentCell.setValue(0);
+            currentCell.setPlayer(null);
 
             if (isBottomExists(rowPos, size)) {
-                incrementValue(grid, rowPos+1, colPos, size);
+                incrementValue(grid, rowPos+1, colPos, size, currentPlayer);
             }
             if (isTopExists(rowPos)) {
-                incrementValue(grid, rowPos-1, colPos, size);
+                incrementValue(grid, rowPos-1, colPos, size, currentPlayer);
             }
             if (isLeftExists(colPos)) {
-                incrementValue(grid, rowPos, colPos-1, size);
+                incrementValue(grid, rowPos, colPos-1, size, currentPlayer);
             }
             if (isRightExists(colPos, size)) {
-                incrementValue(grid, rowPos, colPos+1, size);
+                incrementValue(grid, rowPos, colPos+1, size, currentPlayer);
             }
         }
+
     }
 
-    public static boolean isRightExists(int colPos, int size) {
+    private static boolean isRightExists(int colPos, int size) {
         return colPos < size - 1;
     }
 
-    public static boolean isLeftExists(int colPos) {
+    private static boolean isLeftExists(int colPos) {
         return colPos > 0;
     }
 
-    public static boolean isBottomExists(int rowPos, int size) {
+    private static boolean isBottomExists(int rowPos, int size) {
         return rowPos < size - 1;
     }
 
-    public static boolean isTopExists(int rowPos) {
+    private static boolean isTopExists(int rowPos) {
         return rowPos > 0;
     }
 
-    public static CellType getCellType(int rowPos, int colPos, int size) {
+    private static CellType getCellType(int rowPos, int colPos, int size) {
         if (rowPos > 0 && rowPos < size-1 && colPos > 0 && colPos < size-1) {
             return CellType.MIDDLE;
         }
@@ -71,7 +121,42 @@ public class Main {
         return CellType.EDGE;
     }
 
-    public static Move getMoveFromUser(Scanner sc, int size) {
+    private static TextColor getColorFromPlayer(int i, Scanner sc, List<TextColor> availableColorsList) {
+        boolean isValidInput = false;
+        int colorNumber;
+        TextColor textColor = null;
+
+        while (!isValidInput) {
+            try {
+                System.out.println("Select the Color for the Player: " + (i+1) + "[Enter the Number attached to the color]");
+
+                for (int j = 0; j < availableColorsList.size(); j++) {
+                    TextColor color = availableColorsList.get(j);
+                    printTextWithColor("[" + (j+1) + "] " + color.name() + "\n", color);
+                }
+                System.out.println();
+
+                colorNumber = sc.nextInt();
+                if (colorNumber >= 1 && colorNumber <= availableColorsList.size()) {
+                    colorNumber--;
+                    textColor = availableColorsList.get(colorNumber);
+                    String textToPrintWithColor = "Player [" + (i+1) + "] selected the color: " + textColor + "\n\n";
+                    printTextWithColor(textToPrintWithColor, textColor);
+                    availableColorsList.remove(colorNumber);
+                    isValidInput = true;
+                } else {
+                    System.err.println("Wrong input! Please enter numbers only in the allowed range!");
+                }
+            } catch (InputMismatchException e) {
+                System.err.println("Wrong input! Please enter only integer numbers!");
+                sc.nextLine();
+            }
+        }
+
+        return textColor;
+    }
+
+    private static Move getMoveFromUser(Scanner sc, int size, Player currentPlayer, Cell[][] grid) {
         Move move = new Move();
         int r = 0;
         int c = 0;
@@ -80,11 +165,17 @@ public class Main {
 
         while (!isValidInput) {
             try {
-                System.out.println("Enter the move - row and column positions: ");
+                System.out.print("Enter the move for ");
+                printTextWithColor("Player: " + (currentPlayer.getId() + 1), currentPlayer.getTextColor());
+                System.out.print(" - row and column positions: ");
                 r = sc.nextInt();
                 c = sc.nextInt();
                 if (r > 0 && c > 0 && r <= size && c <= size) {
-                    isValidInput = true;
+                    if (currentPlayer.equals(grid[r-1][c-1].getPlayer()) || grid[r-1][c-1].getPlayer() == null) {
+                        isValidInput = true;
+                    } else {
+                        System.err.println("Wrong input! Please enter position occupied by you or which is empty!");
+                    }
                 } else {
                     System.err.println("Wrong input! Please enter numbers within the grid!");
                 }
@@ -97,6 +188,29 @@ public class Main {
         move.setRowPos(r-1);
         move.setColPos(c-1);
         return move;
+    }
+
+    private static int getPlayerCountFromUser(Scanner sc) {
+        boolean isValidInput = false;
+        int count = 0;
+
+        while (!isValidInput) {
+            try {
+                System.out.println("Enter the Number of Players [Allowed Range: 2 - 6]: ");
+                count = sc.nextInt();
+                if (count >= 2 && count <= 6) {
+                    System.out.println("Number of Players selected: " + count);
+                    isValidInput = true;
+                } else {
+                    System.err.println("Wrong input! Please enter numbers only in the allowed range!");
+                }
+            } catch (InputMismatchException e) {
+                System.err.println("Wrong input! Please enter only integer numbers!");
+                sc.nextLine();
+            }
+        }
+
+        return count;
     }
 
     private static int getGridSizeFromUser(Scanner sc) {
@@ -122,13 +236,14 @@ public class Main {
         return size;
     }
 
-    public static int[][] getDefaultGrid(int size) {
+    private static Cell[][] getDefaultGrid(int size) {
 
-        int[][] grid = new int[size][size];
+        Cell[][] grid = new Cell[size][size];
 
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
-                grid[i][j] = 0;
+                grid[i][j] = new Cell();
+                grid[i][j].setValue(0);
             }
         }
 
@@ -136,7 +251,7 @@ public class Main {
 
     }
 
-    public static void printGrid(int[][] grid, int size) {
+    private static void printGrid(Cell[][] grid, int size) {
         printTopRowWithBorder(size);
         printMainGrid(grid, size);
         printBottomBorder(size);
@@ -156,17 +271,32 @@ public class Main {
         System.out.println();
     }
 
-    private static void printMainGrid(int[][] grid, int size) {
+    private static void printMainGrid(Cell[][] grid, int size) {
         for (int i = 0; i < size; i++) {
             System.out.print(printNum(i+1) + " │ ");
             for (int j = 0; j < size; j++) {
-                System.out.print(printNum(grid[i][j]) + " ");
+                int cellValue = grid[i][j].getValue();
+                Player currentPlayer = grid[i][j].getPlayer();
+                TextColor textColor;
+                if (currentPlayer == null) {
+                    textColor = TextColor.WHITE;
+                } else {
+                    textColor = currentPlayer.getTextColor();
+                }
+                String textToPrint = printNum(cellValue) + " ";
+                printTextWithColor(textToPrint, textColor);
 
                 // NOTE: to check the position of each element
 //                System.out.print(i + String.valueOf(j) + " ");
             }
             System.out.println(" │ ");
         }
+    }
+
+    private static void printTextWithColor(String text, TextColor textColor) {
+        String textColorCode = textColor.getColorCode();
+        String textResetColorCode = TextColor.RESET.getColorCode();
+        System.out.print(textColorCode + text + textResetColorCode);
     }
 
     private static void printBottomBorder(int size) {
@@ -178,7 +308,7 @@ public class Main {
         System.out.println();
     }
 
-    public static String printNum(int num) {
+    private static String printNum(int num) {
         if (num < 10) {
             if (num == 0) {
                 return " .";
@@ -186,6 +316,19 @@ public class Main {
             return " " + num;
         }
         return String.valueOf(num);
+    }
+
+    private static void clearScreen() {
+        System.out.print("\033[H\033[2J");
+        System.out.flush();
+    }
+
+    private static void sleep() {
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
  }
