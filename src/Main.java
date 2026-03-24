@@ -14,7 +14,9 @@ public class Main {
         List<Player> playerList =  createPlayersAndAssignColors(playerCount, sc);
 
         Cell[][] grid = getDefaultGrid(size);
+        clearScreen();
         printGrid(grid, size);
+        sleep();
 
         int currentPlayerIndex = 0;
         int totalPlayers = playerList.size();
@@ -62,29 +64,31 @@ public class Main {
     }
 
     private static void incrementValue(Cell[][] grid, int rowPos, int colPos, int size, Player currentPlayer) {
-            Cell currentCell = grid[rowPos][colPos];
+        Cell currentCell = grid[rowPos][colPos];
 
-            currentCell.setValue(grid[rowPos][colPos].getValue() + 1);
-            currentCell.setPlayer(currentPlayer);
-            printGrid(grid, size);
-            CellType cellType = getCellType(rowPos, colPos, size);
-            if (currentCell.getValue() >= cellType.getCapacity()) {
-                currentCell.setValue(0);
-                currentCell.setPlayer(null);
+        currentCell.setValue(grid[rowPos][colPos].getValue() + 1);
+        currentCell.setPlayer(currentPlayer);
+        clearScreen();
+        printGrid(grid, size);
+        sleep();
+        CellType cellType = getCellType(rowPos, colPos, size);
+        if (currentCell.getValue() >= cellType.getCapacity()) {
+            currentCell.setValue(0);
+            currentCell.setPlayer(null);
 
-                if (isBottomExists(rowPos, size)) {
-                    incrementValue(grid, rowPos+1, colPos, size, currentPlayer);
-                }
-                if (isTopExists(rowPos)) {
-                    incrementValue(grid, rowPos-1, colPos, size, currentPlayer);
-                }
-                if (isLeftExists(colPos)) {
-                    incrementValue(grid, rowPos, colPos-1, size, currentPlayer);
-                }
-                if (isRightExists(colPos, size)) {
-                    incrementValue(grid, rowPos, colPos+1, size, currentPlayer);
-                }
+            if (isBottomExists(rowPos, size)) {
+                incrementValue(grid, rowPos+1, colPos, size, currentPlayer);
             }
+            if (isTopExists(rowPos)) {
+                incrementValue(grid, rowPos-1, colPos, size, currentPlayer);
+            }
+            if (isLeftExists(colPos)) {
+                incrementValue(grid, rowPos, colPos-1, size, currentPlayer);
+            }
+            if (isRightExists(colPos, size)) {
+                incrementValue(grid, rowPos, colPos+1, size, currentPlayer);
+            }
+        }
 
     }
 
@@ -312,6 +316,19 @@ public class Main {
             return " " + num;
         }
         return String.valueOf(num);
+    }
+
+    private static void clearScreen() {
+        System.out.print("\033[H\033[2J");
+        System.out.flush();
+    }
+
+    private static void sleep() {
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
  }
