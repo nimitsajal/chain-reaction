@@ -66,7 +66,7 @@ public class Main {
     private static void incrementValue(Cell[][] grid, int rowPos, int colPos, int size, Player currentPlayer) {
         Cell currentCell = grid[rowPos][colPos];
 
-        currentCell.setValue(grid[rowPos][colPos].getValue() + 1);
+        currentCell.setValue(currentCell.getValue() + 1);
         currentCell.setPlayer(currentPlayer);
         clearScreen();
         printGrid(grid, size);
