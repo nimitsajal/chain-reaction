@@ -36,17 +36,29 @@ public class Main {
 
     private static List<Player> createPlayersAndAssignColors(int playerCount, Scanner sc) {
         List<Player> playerList = new ArrayList<>();
+        List<TextColor> availableColorsList = getAvailableColorsList();
 
         for(int i=0; i < playerCount; i++) {
             Player player = new Player();
             player.setId(i);
-            TextColor textColor = getColorFromPlayer(player.getId(), sc);
+            TextColor textColor = getColorFromPlayer(player.getId(), sc, availableColorsList);
             player.setTextColor(textColor);
             playerList.add(player);
         }
 
         return playerList;
 
+    }
+
+    private static List<TextColor> getAvailableColorsList() {
+        return new ArrayList<>(List.of(
+                TextColor.RED,
+                TextColor.BLUE,
+                TextColor.GREEN,
+                TextColor.YELLOW,
+                TextColor.CYAN,
+                TextColor.MAGENTA
+        ));
     }
 
     private static void incrementValue(Cell[][] grid, int rowPos, int colPos, int size, Player currentPlayer) {
@@ -105,19 +117,28 @@ public class Main {
         return CellType.EDGE;
     }
 
-    private static TextColor getColorFromPlayer(int i, Scanner sc) {
+    private static TextColor getColorFromPlayer(int i, Scanner sc, List<TextColor> availableColorsList) {
         boolean isValidInput = false;
         int colorNumber;
         TextColor textColor = null;
 
         while (!isValidInput) {
             try {
-                System.out.println("Select the Color for the Player: " + (i + 1) + "[Enter the Number attached to the color]");
-                System.out.println("Allowed Colors: [1] RED, [2] BLUE, [3] GREEN, [4] YELLOW, [5] CYAN, [6] MAGENTA");
+                System.out.println("Select the Color for the Player: " + (i+1) + "[Enter the Number attached to the color]");
+
+                for (int j = 0; j < availableColorsList.size(); j++) {
+                    TextColor color = availableColorsList.get(j);
+                    printTextWithColor("[" + (j+1) + "] " + color.name() + "\n", color);
+                }
+                System.out.println();
+
                 colorNumber = sc.nextInt();
-                if (colorNumber >= 1 && colorNumber <= 6) {
-                    textColor = getTextColorEnumFromSelectedNumber(colorNumber);
-                    System.out.println("Selected Color: [" + colorNumber + "] " + textColor);
+                if (colorNumber >= 1 && colorNumber <= availableColorsList.size()) {
+                    colorNumber--;
+                    textColor = availableColorsList.get(colorNumber);
+                    String textToPrintWithColor = "Player [" + (i+1) + "] selected the color: " + textColor + "\n\n";
+                    printTextWithColor(textToPrintWithColor, textColor);
+                    availableColorsList.remove(colorNumber);
                     isValidInput = true;
                 } else {
                     System.err.println("Wrong input! Please enter numbers only in the allowed range!");
@@ -131,18 +152,6 @@ public class Main {
         return textColor;
     }
 
-    private static TextColor getTextColorEnumFromSelectedNumber(int colorNumber) {
-        return switch (colorNumber) {
-            case 1 -> TextColor.RED;
-            case 2 -> TextColor.BLUE;
-            case 3 -> TextColor.GREEN;
-            case 4 -> TextColor.YELLOW;
-            case 5 -> TextColor.CYAN;
-            case 6 -> TextColor.MAGENTA;
-            default -> TextColor.WHITE;
-        };
-    }
-
     private static Move getMoveFromUser(Scanner sc, int size, Player currentPlayer, Cell[][] grid) {
         Move move = new Move();
         int r = 0;
@@ -152,7 +161,9 @@ public class Main {
 
         while (!isValidInput) {
             try {
-                System.out.println("Enter the move for Player: " + (currentPlayer.getId() + 1) + " - row and column positions: ");
+                System.out.print("Enter the move for ");
+                printTextWithColor("Player: " + (currentPlayer.getId() + 1), currentPlayer.getTextColor());
+                System.out.print(" - row and column positions: ");
                 r = sc.nextInt();
                 c = sc.nextInt();
                 if (r > 0 && c > 0 && r <= size && c <= size) {
