@@ -26,10 +26,18 @@ public class Main {
 
             Player currentPlayer = playerList.get(currentPlayerIndex);
 
-            Move move = getMoveFromUser(sc, size, currentPlayer, grid);
+            System.out.println();
+            System.out.print("Player id: " + currentPlayer.getId() + ", hasPlayed: " + currentPlayer.isHasPlayed() + ", color: " + currentPlayer.getTextColor() + ", occupiedCells: " + currentPlayer.getOccupiedCells());
+            System.out.println();
 
-            incrementValue(grid, move.getRowPos(), move.getColPos(), size, currentPlayer);
+            if (!currentPlayer.isHasPlayed() || currentPlayer.getOccupiedCells() > 0) {
+                Move move = getMoveFromUser(sc, size, currentPlayer, grid);
+                incrementValue(grid, move.getRowPos(), move.getColPos(), size, currentPlayer);
 //            printGrid(grid, size);
+            } else {
+                String playerEliminatedText = "Player " + (currentPlayerIndex+1) + " is Eliminated!";
+                printTextWithColor(playerEliminatedText, currentPlayer.getTextColor());
+            }
 
             currentPlayerIndex = (currentPlayerIndex + 1) % totalPlayers;
 
@@ -45,6 +53,7 @@ public class Main {
             player.setId(i);
             TextColor textColor = getColorFromPlayer(player.getId(), sc, availableColorsList);
             player.setTextColor(textColor);
+            player.setHasPlayed(false);
             playerList.add(player);
         }
 
@@ -66,8 +75,17 @@ public class Main {
     private static void incrementValue(Cell[][] grid, int rowPos, int colPos, int size, Player currentPlayer) {
         Cell currentCell = grid[rowPos][colPos];
 
+        if (!currentPlayer.equals(currentCell.getPlayer())) {
+            if (currentCell.getPlayer() != null) {
+                currentCell.getPlayer().setOccupiedCells(currentCell.getPlayer().getOccupiedCells()-1);
+            }
+            currentPlayer.setOccupiedCells(currentPlayer.getOccupiedCells()+1);
+        }
+
         currentCell.setValue(currentCell.getValue() + 1);
         currentCell.setPlayer(currentPlayer);
+        currentPlayer.setHasPlayed(true);
+
         clearScreen();
         printGrid(grid, size);
         sleep();
@@ -75,6 +93,7 @@ public class Main {
         if (currentCell.getValue() >= cellType.getCapacity()) {
             currentCell.setValue(0);
             currentCell.setPlayer(null);
+            currentPlayer.setOccupiedCells(currentPlayer.getOccupiedCells()-1);
 
             if (isBottomExists(rowPos, size)) {
                 incrementValue(grid, rowPos+1, colPos, size, currentPlayer);
