@@ -31,3 +31,5 @@ bin/
 ### Intellij Idea ###
 .idea/
 *.iml
+
+*.jar
