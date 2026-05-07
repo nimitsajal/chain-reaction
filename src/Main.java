@@ -1,11 +1,16 @@
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
+import java.util.Set;
+
+import org.fusesource.jansi.AnsiConsole;
 
 public class Main {
     public static void main(String[] args) {
 
+        AnsiConsole.systemInstall();
         Scanner sc = new Scanner(System.in);
 //        int size = 10;
         int size = getGridSizeFromUser(sc);
@@ -21,16 +26,39 @@ public class Main {
         int currentPlayerIndex = 0;
         int totalPlayers = playerList.size();
         boolean isGameOver = false;
+        int turnCount = 0;
+        Set<Integer> eliminatedPlayers = new HashSet<>();
 
         while(!isGameOver) {
 
             Player currentPlayer = playerList.get(currentPlayerIndex);
 
+            // After the first full round, check if current player has any cells
+            if (turnCount >= totalPlayers) {
+                if (getPlayerCellCount(grid, size, currentPlayer) == 0) {
+                    if (eliminatedPlayers.add(currentPlayer.getId())) {
+                        System.out.println("Player " + (currentPlayer.getId() + 1) + " is eliminated!");
+                        sleep();
+                    }
+                    currentPlayerIndex = (currentPlayerIndex + 1) % totalPlayers;
+                    continue;
+                }
+            }
+
             Move move = getMoveFromUser(sc, size, currentPlayer, grid);
 
-            incrementValue(grid, move.getRowPos(), move.getColPos(), size, currentPlayer);
-//            printGrid(grid, size);
+            boolean[] gameOver = {false};
+            incrementValue(grid, move.getRowPos(), move.getColPos(), size, currentPlayer, turnCount >= totalPlayers, playerList, gameOver);
 
+            if (gameOver[0]) {
+                isGameOver = true;
+                clearScreen();
+                printGrid(grid, size);
+                printTextWithColor("\nPlayer " + (currentPlayer.getId() + 1) + " wins the game!\n\n", currentPlayer.getTextColor());
+                break;
+            }
+
+            turnCount++;
             currentPlayerIndex = (currentPlayerIndex + 1) % totalPlayers;
 
         }
@@ -63,7 +91,9 @@ public class Main {
         ));
     }
 
-    private static void incrementValue(Cell[][] grid, int rowPos, int colPos, int size, Player currentPlayer) {
+    private static void incrementValue(Cell[][] grid, int rowPos, int colPos, int size, Player currentPlayer, boolean checkGameOver, List<Player> playerList, boolean[] gameOver) {
+        if (gameOver[0]) return;
+
         Cell currentCell = grid[rowPos][colPos];
 
         currentCell.setValue(currentCell.getValue() + 1);
@@ -71,25 +101,52 @@ public class Main {
         clearScreen();
         printGrid(grid, size);
         sleep();
+
+        // Check if game is over mid-recursion
+        if (checkGameOver) {
+            int playersAlive = 0;
+            for (Player p : playerList) {
+                if (getPlayerCellCount(grid, size, p) > 0) {
+                    playersAlive++;
+                }
+            }
+            if (playersAlive == 1) {
+                gameOver[0] = true;
+                return;
+            }
+        }
+
         CellType cellType = getCellType(rowPos, colPos, size);
         if (currentCell.getValue() >= cellType.getCapacity()) {
             currentCell.setValue(0);
             currentCell.setPlayer(null);
 
             if (isBottomExists(rowPos, size)) {
-                incrementValue(grid, rowPos+1, colPos, size, currentPlayer);
+                incrementValue(grid, rowPos+1, colPos, size, currentPlayer, checkGameOver, playerList, gameOver);
             }
-            if (isTopExists(rowPos)) {
-                incrementValue(grid, rowPos-1, colPos, size, currentPlayer);
+            if (!gameOver[0] && isTopExists(rowPos)) {
+                incrementValue(grid, rowPos-1, colPos, size, currentPlayer, checkGameOver, playerList, gameOver);
             }
-            if (isLeftExists(colPos)) {
-                incrementValue(grid, rowPos, colPos-1, size, currentPlayer);
+            if (!gameOver[0] && isLeftExists(colPos)) {
+                incrementValue(grid, rowPos, colPos-1, size, currentPlayer, checkGameOver, playerList, gameOver);
             }
-            if (isRightExists(colPos, size)) {
-                incrementValue(grid, rowPos, colPos+1, size, currentPlayer);
+            if (!gameOver[0] && isRightExists(colPos, size)) {
+                incrementValue(grid, rowPos, colPos+1, size, currentPlayer, checkGameOver, playerList, gameOver);
             }
         }
 
+    }
+
+    private static int getPlayerCellCount(Cell[][] grid, int size, Player player) {
+        int count = 0;
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                if (player.equals(grid[i][j].getPlayer())) {
+                    count++;
+                }
+            }
+        }
+        return count;
     }
 
     private static boolean isRightExists(int colPos, int size) {
