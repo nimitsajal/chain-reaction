@@ -1,5 +1,3 @@
-![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/nimitsajal/chain-reaction?utm_source=oss&utm_medium=github&utm_campaign=nimitsajal%2Fchain-reaction&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews)
-
 # Chain Reaction
 
 A console-based **Chain Reaction** board game built in Java. 2–6 players take turns placing atoms on an N×N grid — cells explode when they reach capacity, cascading chain reactions into neighboring cells and converting them to your color. Last player standing wins!
