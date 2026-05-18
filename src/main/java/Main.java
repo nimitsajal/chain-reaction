@@ -5,14 +5,24 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
 
+import firebase.FirebaseClient;
+import firebase.OnlineMove;
+
 import org.fusesource.jansi.AnsiConsole;
 
 public class Main {
     public static void main(String[] args) {
 
+        System.out.println("MAIN STARTED");
+
         AnsiConsole.systemInstall();
         Scanner sc = new Scanner(System.in);
 //        int size = 10;
+
+        for (int i=0; i<20; i++){
+            testFirebaseConnection(i+1);
+        }
+
         int size = getGridSizeFromUser(sc);
         int playerCount = getPlayerCountFromUser(sc);
 
@@ -21,7 +31,7 @@ public class Main {
         Cell[][] grid = getDefaultGrid(size);
         clearScreen();
         printGrid(grid, size);
-        sleep();
+        sleep(100);
 
         int currentPlayerIndex = 0;
         int totalPlayers = playerList.size();
@@ -38,7 +48,7 @@ public class Main {
                 if (getPlayerCellCount(grid, size, currentPlayer) == 0) {
                     if (eliminatedPlayers.add(currentPlayer.getId())) {
                         System.out.println("Player " + (currentPlayer.getId() + 1) + " is eliminated!");
-                        sleep();
+                        sleep(100);
                     }
                     currentPlayerIndex = (currentPlayerIndex + 1) % totalPlayers;
                     continue;
@@ -62,6 +72,20 @@ public class Main {
             currentPlayerIndex = (currentPlayerIndex + 1) % totalPlayers;
 
         }
+    }
+
+    private static void testFirebaseConnection(int num) {
+
+        System.out.println("Testing Firebase connection...");
+
+        OnlineMove onlineMove = new OnlineMove("player1", 1+num, 2+num, System.currentTimeMillis());
+
+        FirebaseClient.pushMove(
+                "test-game",
+                onlineMove
+        );
+
+        sleep(2000);
     }
 
     private static List<Player> createPlayersAndAssignColors(int playerCount, Scanner sc) {
@@ -100,7 +124,7 @@ public class Main {
         currentCell.setPlayer(currentPlayer);
         clearScreen();
         printGrid(grid, size);
-        sleep();
+        sleep(100);
 
         // Check if game is over mid-recursion
         if (checkGameOver) {
@@ -380,9 +404,9 @@ public class Main {
         System.out.flush();
     }
 
-    private static void sleep() {
+    private static void sleep(int millis) {
         try {
-            Thread.sleep(100);
+            Thread.sleep(millis);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
