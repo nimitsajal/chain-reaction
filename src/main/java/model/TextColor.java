@@ -1,4 +1,6 @@
-enum TextColor {
+package model;
+
+public enum TextColor {
     RED("\u001B[31m"),
     BLUE("\u001B[34m"),
     GREEN("\u001B[32m"),

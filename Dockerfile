@@ -9,5 +9,5 @@ WORKDIR /app
 COPY --from=build /app/out/ out/
 COPY --from=build /app/lib/ lib/
 ENV TERM=xterm-256color
-ENTRYPOINT ["java", "-cp", "out:lib/jansi-2.4.1.jar", "Main"]
+ENTRYPOINT ["java", "-cp", "out:lib/jansi-2.4.1.jar", "game.Main"]
 

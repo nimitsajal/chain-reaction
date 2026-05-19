@@ -7,7 +7,7 @@ A console-based **Chain Reaction** board game built in Java. 2–6 players take 
 - 2–6 player support with color-coded atoms
 - Configurable grid size (4×4 to 15×15)
 - Animated chain reaction explosions with ANSI colored output
-- Player elimination and win detection mid-explosion
+- model.Player elimination and win detection mid-explosion
 - Cross-platform color support via [JANSI](https://github.com/fusesource/jansi)
 
 ## How to Play
@@ -38,8 +38,8 @@ Requires Java 21+.
 
 ```sh
 javac -cp lib/jansi-2.4.1.jar src/*.java -d out
-java -cp "out;lib/jansi-2.4.1.jar" Main        # Windows
-java -cp "out:lib/jansi-2.4.1.jar" Main         # Linux/macOS
+java -cp "out;lib/jansi-2.4.1.jar" game.Main        # Windows
+java -cp "out:lib/jansi-2.4.1.jar" game.Main         # Linux/macOS
 ```
 
 ### Option 3: Docker Build Locally

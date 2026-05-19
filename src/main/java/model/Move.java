@@ -1,3 +1,5 @@
+package model;
+
 public class Move {
     private int rowPos;
     private int colPos;

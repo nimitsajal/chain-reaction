@@ -1,4 +1,6 @@
-enum CellType {
+package model;
+
+public enum CellType {
     CORNER(2),
     EDGE(3),
     MIDDLE(4);

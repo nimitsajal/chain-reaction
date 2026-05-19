@@ -1,13 +1,8 @@
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.InputMismatchException;
-import java.util.List;
-import java.util.Scanner;
-import java.util.Set;
+package game;
 
-import firebase.FirebaseClient;
-import firebase.OnlineMove;
+import java.util.*;
 
+import model.*;
 import org.fusesource.jansi.AnsiConsole;
 
 public class Main {
@@ -16,12 +11,11 @@ public class Main {
         System.out.println("MAIN STARTED");
 
         AnsiConsole.systemInstall();
+
         Scanner sc = new Scanner(System.in);
 //        int size = 10;
 
-        for (int i=0; i<20; i++){
-            testFirebaseConnection(i+1);
-        }
+
 
         int size = getGridSizeFromUser(sc);
         int playerCount = getPlayerCountFromUser(sc);
@@ -72,20 +66,6 @@ public class Main {
             currentPlayerIndex = (currentPlayerIndex + 1) % totalPlayers;
 
         }
-    }
-
-    private static void testFirebaseConnection(int num) {
-
-        System.out.println("Testing Firebase connection...");
-
-        OnlineMove onlineMove = new OnlineMove("player1", 1+num, 2+num, System.currentTimeMillis());
-
-        FirebaseClient.pushMove(
-                "test-game",
-                onlineMove
-        );
-
-        sleep(2000);
     }
 
     private static List<Player> createPlayersAndAssignColors(int playerCount, Scanner sc) {
@@ -209,7 +189,7 @@ public class Main {
 
         while (!isValidInput) {
             try {
-                System.out.println("Select the Color for the Player: " + (i+1) + "[Enter the Number attached to the color]");
+                System.out.println("Select the Color for the model.Player: " + (i+1) + "[Enter the Number attached to the color]");
 
                 for (int j = 0; j < availableColorsList.size(); j++) {
                     TextColor color = availableColorsList.get(j);
@@ -221,7 +201,7 @@ public class Main {
                 if (colorNumber >= 1 && colorNumber <= availableColorsList.size()) {
                     colorNumber--;
                     textColor = availableColorsList.get(colorNumber);
-                    String textToPrintWithColor = "Player [" + (i+1) + "] selected the color: " + textColor + "\n\n";
+                    String textToPrintWithColor = "model.Player [" + (i+1) + "] selected the color: " + textColor + "\n\n";
                     printTextWithColor(textToPrintWithColor, textColor);
                     availableColorsList.remove(colorNumber);
                     isValidInput = true;
@@ -247,7 +227,7 @@ public class Main {
         while (!isValidInput) {
             try {
                 System.out.print("Enter the move for ");
-                printTextWithColor("Player: " + (currentPlayer.getId() + 1), currentPlayer.getTextColor());
+                printTextWithColor("model.Player: " + (currentPlayer.getId() + 1), currentPlayer.getTextColor());
                 System.out.print(" - row and column positions: ");
                 r = sc.nextInt();
                 c = sc.nextInt();
